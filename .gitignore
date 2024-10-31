@@ -1,0 +1,7 @@
+# IDE Files
+.idea
+.vscode
+*.iml
+
+# System Files
+.DS_Store
