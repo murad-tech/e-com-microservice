@@ -1,6 +1,5 @@
 package com.murad.customer_service.controllers;
 
-import com.murad.customer_service.dto.AddressRequest;
 import com.murad.customer_service.dto.CustomerRequest;
 import com.murad.customer_service.dto.CustomerResponse;
 import com.murad.customer_service.dto.CustomerUpdateRequest;
@@ -51,7 +50,8 @@ public class CustomerController {
 
     /* Address methods */
     @PostMapping("/{customerId}/addresses")
-    public ResponseEntity<String> addAddress(@PathVariable Long customerId, @RequestBody @Valid Set<Address> request) {
+    public ResponseEntity<String> addAddress(@PathVariable Long customerId,
+                                             @RequestBody @Valid Set<Address> request) {
         return ResponseEntity.ok(addressService.saveAddresses(customerId, request));
     }
 
@@ -61,12 +61,15 @@ public class CustomerController {
     }
 
     @PutMapping("/{customerId}/addresses/{addressId}")
-    public ResponseEntity<Address> updateAddress(@PathVariable Long customerId, @PathVariable Long addressId, @RequestBody @Valid Address request) {
+    public ResponseEntity<Address> updateAddress(@PathVariable Long customerId,
+                                                 @PathVariable Long addressId,
+                                                 @RequestBody @Valid Address request) {
         return ResponseEntity.ok(addressService.updateAddress(customerId, addressId, request));
     }
 
     @DeleteMapping("/{customerId}/addresses/{addressId}")
-    public ResponseEntity<Void> deleteAddress(@PathVariable Long customerId, @PathVariable Long addressId) {
+    public ResponseEntity<Void> deleteAddress(@PathVariable Long customerId,
+                                              @PathVariable Long addressId) {
         addressService.deleteAddress(customerId, addressId);
         return ResponseEntity.ok().build();
     }
