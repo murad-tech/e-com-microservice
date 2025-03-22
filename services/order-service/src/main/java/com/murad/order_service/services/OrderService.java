@@ -1,7 +1,8 @@
 package com.murad.order_service.services;
 
-import com.murad.order_service.dto.OrderRequest;
+import com.murad.order_service.dto.CreateOrderRequest;
 import com.murad.order_service.dto.ProductItemsRequest;
+import com.murad.order_service.dto.UpdateOrderRequest;
 import com.murad.order_service.models.Order;
 import com.murad.order_service.models.OrderStatus;
 import com.murad.order_service.repositories.OrderRepository;
@@ -22,7 +23,11 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found")); // TODO: Handle exception
     }
 
-    public Order saveOrder(OrderRequest request) {
+    public Order saveOrder(CreateOrderRequest request) {
+        // TODO: verify customer exists
+        // TODO: verify address exists
+        // TODO: verify product exists and inventory
+
         var orderRequest = Order.builder()
                 .userId(request.userId())
                 .addressId(request.addressId())
@@ -35,7 +40,9 @@ public class OrderService {
         return order;
     }
 
-    public Order updateOrder(Long orderId, OrderRequest request) {
+    public Order updateOrder(Long orderId, UpdateOrderRequest request) {
+        // TODO: verify address exists
+        // TODO: verify product exists and inventory
         var order = findOrder(orderId);
         mergeOrder(order, request);
         if(request.orderItems() != null)
@@ -48,9 +55,8 @@ public class OrderService {
         productItemsService.saveProductItems(productItems, order);
     }
 
-    private void mergeOrder(Order order, OrderRequest request) {
+    private void mergeOrder(Order order, UpdateOrderRequest request) {
         order.setAddressId(request.addressId() != null ? request.addressId() : order.getAddressId());
         order.setOrderStatus(request.orderStatus() != null ? request.orderStatus() : order.getOrderStatus());
-        order.setPaymentId(request.paymentId() != null ? request.paymentId() : order.getPaymentId());
     }
 }

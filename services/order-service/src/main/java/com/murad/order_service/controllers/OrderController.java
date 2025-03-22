@@ -1,6 +1,7 @@
 package com.murad.order_service.controllers;
 
-import com.murad.order_service.dto.OrderRequest;
+import com.murad.order_service.dto.CreateOrderRequest;
+import com.murad.order_service.dto.UpdateOrderRequest;
 import com.murad.order_service.models.Order;
 import com.murad.order_service.services.OrderService;
 import jakarta.validation.Valid;
@@ -24,14 +25,14 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createOrder(@RequestBody @Valid OrderRequest request) throws URISyntaxException {
+    public ResponseEntity<String> createOrder(@RequestBody @Valid CreateOrderRequest request) throws URISyntaxException {
         var order = orderService.saveOrder(request);
         return ResponseEntity.created(new URI("/orders/" + order.getId()))
                 .body("Order successfully placed with id " + order.getId());
     }
 
     @PutMapping("/{orderId}")
-    public ResponseEntity<Order> updateOrder(@PathVariable Long orderId, @RequestBody @Valid OrderRequest request) {
+    public ResponseEntity<Order> updateOrder(@PathVariable Long orderId, @RequestBody @Valid UpdateOrderRequest request) {
         var order = orderService.updateOrder(orderId, request);
         return ResponseEntity.ok(order);
     }
