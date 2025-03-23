@@ -1,5 +1,8 @@
 package com.murad.order_service.services;
 
+import com.murad.order_service.clients.CustomerClient;
+import com.murad.order_service.clients.ProductClient;
+import com.murad.order_service.clients.dto.InventoryRequest;
 import com.murad.order_service.dto.CreateOrderRequest;
 import com.murad.order_service.dto.ProductItemsRequest;
 import com.murad.order_service.dto.UpdateOrderRequest;
@@ -9,6 +12,7 @@ import com.murad.order_service.repositories.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,15 +22,30 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductItemsService productItemsService;
 
+    private final CustomerClient customerClient;
+    private final ProductClient productClient;
+
     public Order findOrder(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found")); // TODO: Handle exception
     }
 
     public Order saveOrder(CreateOrderRequest request) {
-        // TODO: verify customer exists
-        // TODO: verify address exists
-        // TODO: verify product exists and inventory
+        // Verify customer and address exists
+        var customer = customerClient.findCustomerById(request.userId())
+                .orElseThrow(() -> new RuntimeException("Customer not found")); // TODO: Handle exception
+        if (customer.addresses().stream().filter(a -> a.id().equals(request.addressId())).count() != 1)
+            throw new RuntimeException("Address not found");
+        // Verify enough inventories for each product
+        List<InventoryRequest> updateInventory = new ArrayList<>();
+        request.orderItems().forEach(p -> {
+            var inventory = productClient.getInventoryQuantity(p.productId());
+            if (p.quantity() > inventory)
+                throw new RuntimeException("Not enough inventory of product: " + p.productId()); // TODO: Handle exception
+            updateInventory.add(new InventoryRequest(p.productId(), inventory - p.quantity()));
+        });
+
+        updateInventory.forEach(productClient::setInventoryQuantity);
 
         var orderRequest = Order.builder()
                 .userId(request.userId())
